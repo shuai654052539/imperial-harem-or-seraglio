@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>飞虎管理系统</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="jiaoben6471/css/style.css">
+  <script type="text/javascript" src="/js/jquery-3.3.1.js"></script>
+  <script type="text/javascript" src="/js/jquery.cookie.js"></script>
+  <script type="text/javascript" src="jiaoben6471/js/vector.js"></script>
+
+</head>
+<body>
+
+<div id="container">
+  <div id="output">
+    <div class="containerT">
+      <h1>用户登录</h1>
+      <form class="form" id="entry_form">
+        <input type="text" placeholder="用户名" id="name">
+        <input type="password" placeholder="密码" id="password">
+        <!--<input type="text" placeholder="验证码" id="code">-->
+        <button type="button" id="entry_btn" onclick="login()">登录</button>
+
+        <div id="prompt" class="prompt">
+          <!--<img src="/imgCode" id="huanMa" /><a href="#" onclick="huanMa()"><h5>看不清，换一张</h5></a>-->
+          <a href="/forgetThePassword.jsp" style=""><h5>忘记密码</h5></a>
+          <!--<a href="/textVue.html" style=""><h5>练习Vue</h5></a>-->
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(function() {
+    Victor('container', 'output');   //登陆背景函数
+    $('#entry_name').focus();
+    $(document).keydown(function(event) {
+      if (event.keyCode == 13) {
+        $('#entry_btn').click();
+      }
+    });
+  });
+</script>
+<script>
+
+  function login() {
+    var userName = $('#name').val();
+    var passWord = $('#password').val();
+    /*var code=$("#code").val();*/
+    if ($.trim(userName) != '' && $.trim(userName) != '') {
+      $.post({
+        url: 'http://localhost:8083/areas/login.jhtml',
+
+        data: {userName: userName, passWord: passWord},
+        success: function(res) {
+          if (res.code == 200) {
+            $.cookie('x_fh', res.data);
+            location.href = '/index.html';
+          } else {
+            alert(res.msg);
+          }
+        }
+      });
+    }
+  }
+
+  function huanMa() {
+    $('#huanMa').attr('src', '/imgCode?code=' + Math.random());
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC  
+    "-//mybatis.org//DTD Mapper 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+   
+<mapper namespace="com.fh.shop.api.goods.mapper.IGoodsDao">
+   <update id="upById" >
+      update t_goods set stock = stock - #{count} where id = #{id} and stock >= #{count}
+   </update>
+   <select id="getRemindShop" resultType="com.fh.shop.api.timer.po.RemindShop">
+      select goodsName shopName, price , stock count from t_goods where putaway = 1 and stock &lt;= 5
+   </select>
+<!--    <select id="getResourcePoList" resultType="com.fh.shop.admin.po.resource.ResourcePo">
+        select id,menuName,fatherId,type,resourceUrl from t_resource
+    </select>
+    <insert id="addTree" parameterType="com.fh.shop.admin.po.resource.ResourcePo">
+        <selectKey  keyProperty="id" resultType="long" order="AFTER" >
+            select last_insert_id()
+        </selectKey>
+        insert into t_resource (menuName,fatherId,type,resourceUrl) values (#{menuName},#{fatherId},#{type},#{resourceUrl})
+    </insert>
+    <update id="updateTree" parameterType="com.fh.shop.admin.po.resource.ResourcePo">
+        update t_resource set menuName=#{menuName},type=#{type},resourceUrl=#{resourceUrl} where id=#{id}
+    </update>
+    <delete id="deleResource" parameterType="string">
+        delete from t_resource where  FIND_IN_SET(id,#{id})
+    </delete>
+    <delete id="deleRoleResource" parameterType="string">
+        delete from t_role_resource where FIND_IN_SET(resourceid,#{str})
+    </delete>-->
+</mapper>

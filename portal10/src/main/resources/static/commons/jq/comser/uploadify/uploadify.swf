@@ -1,0 +1,231 @@
+
+public class SWFUpload extends flash.display.Sprite
+{
+  native public function SWFUpload():*;
+  native private const build_number:String = "SWFUPLOAD 2.2.0";
+  native private var fileBrowserMany:flash.net.FileReferenceList;
+  native private var fileBrowserOne:flash.net.FileReference = null;
+
+  native private var file_queue:Array;
+  native private var current_file_item:FileItem = null;
+  native private var file_index:Array;
+  native private var successful_uploads:Number = 0;
+  native private var queue_errors:Number = 0;
+
+  native private var upload_errors:Number = 0;
+  native private var upload_cancelled:Number = 0;
+  native private var queued_uploads:Number = 0;
+  native private var valid_file_extensions:Array;
+  native private var serverDataTimer:flash.utils.Timer = null;
+
+  native private var assumeSuccessTimer:flash.utils.Timer = null;
+  native private var restoreExtIntTimer:flash.utils.Timer;
+  native private var hasCalledFlashReady:Boolean = false;
+  native private var flashReady_Callback:String;
+  native private var fileDialogStart_Callback:String;
+
+  native private var fileQueued_Callback:String;
+  native private var fileQueueError_Callback:String;
+  native private var fileDialogComplete_Callback:String;
+  native private var uploadStart_Callback:String;
+  native private var uploadProgress_Callback:String;
+
+  native private var uploadError_Callback:String;
+  native private var uploadSuccess_Callback:String;
+  native private var uploadComplete_Callback:String;
+  native private var debug_Callback:String;
+  native private var testExternalInterface_Callback:String;
+
+  native private var cleanUp_Callback:String;
+  native private var movieName:String;
+  native private var uploadURL:String;
+  native private var filePostName:String;
+  native private var uploadPostObject:Object;
+
+  native private var fileTypes:String;
+  native private var fileTypesDescription:String;
+  native private var fileSizeLimit:Number;
+  native private var fileUploadLimit:Number = 0;
+  native private var fileQueueLimit:Number = 0;
+
+  native private var useQueryString:Boolean = false;
+  native private var requeueOnError:Boolean = false;
+  native private var httpSuccess:Array;
+  native private var assumeSuccessTimeout:Number = 0;
+  native private var debugEnabled:Boolean;
+
+  native private var buttonLoader:flash.display.Loader;
+  native private var buttonTextField:flash.text.TextField;
+  native private var buttonCursorSprite:flash.display.Sprite;
+  native private var buttonImageURL:String;
+  native private var buttonWidth:Number;
+
+  native private var buttonHeight:Number;
+  native private var buttonText:String;
+  native private var buttonTextStyle:String;
+  native private var buttonTextTopPadding:Number;
+  native private var buttonTextLeftPadding:Number;
+
+  native private var buttonAction:Number;
+  native private var buttonCursor:Number;
+  native private var buttonStateOver:Boolean;
+  native private var buttonStateMouseDown:Boolean;
+  native private var buttonStateDisabled:Boolean;
+
+  native private var SIZE_TOO_BIG:Number = 1;
+  native private var SIZE_ZERO_BYTE:Number = -1;
+  native private var SIZE_OK:Number = 0;
+  native private var ERROR_CODE_QUEUE_LIMIT_EXCEEDED:Number = -100;
+  native private var ERROR_CODE_FILE_EXCEEDS_SIZE_LIMIT:Number = -110;
+
+  native private var ERROR_CODE_ZERO_BYTE_FILE:Number = -120;
+  native private var ERROR_CODE_INVALID_FILETYPE:Number = -130;
+  native private var ERROR_CODE_HTTP_ERROR:Number = -200;
+  native private var ERROR_CODE_MISSING_UPLOAD_URL:Number = -210;
+  native private var ERROR_CODE_IO_ERROR:Number = -220;
+
+  native private var ERROR_CODE_SECURITY_ERROR:Number = -230;
+  native private var ERROR_CODE_UPLOAD_LIMIT_EXCEEDED:Number = -240;
+  native private var ERROR_CODE_UPLOAD_FAILED:Number = -250;
+  native private var ERROR_CODE_SPECIFIED_FILE_ID_NOT_FOUND:Number = -260;
+  native private var ERROR_CODE_FILE_VALIDATION_FAILED:Number = -270;
+
+  native private var ERROR_CODE_FILE_CANCELLED:Number = -280;
+  native private var ERROR_CODE_UPLOAD_STOPPED:Number = -290;
+  native private var BUTTON_ACTION_SELECT_FILE:Number = -100;
+  native private var BUTTON_ACTION_SELECT_FILES:Number = -110;
+  native private var BUTTON_ACTION_START_UPLOAD:Number = -120;
+
+  native private var BUTTON_CURSOR_ARROW:Number = -1;
+  native private var BUTTON_CURSOR_HAND:Number = -2;
+  native private function CheckExternalInterface():void;
+  native private function TestExternalInterface():Boolean;
+  native private function SetupExternalInterface():void;
+
+  native private function DialogCancelled_Handler(a:flash.events.Event):void;
+  native private function Open_Handler(a:flash.events.Event):void;
+  native private function FileProgress_Handler(a:flash.events.ProgressEvent):void;
+  native private function AssumeSuccessTimer_Handler(a:flash.events.TimerEvent):void;
+  native private function Complete_Handler(a:flash.events.Event):void;
+
+  native private function ServerDataTimer_Handler(a:flash.events.TimerEvent):void;
+  native private function ServerData_Handler(a:flash.events.DataEvent):void;
+  native private function UploadSuccess(a:FileItem,a2:String,a3:Boolean = true):void;
+  native private function HTTPError_Handler(a:flash.events.HTTPStatusEvent):void;
+  native private function IOError_Handler(a:flash.events.IOErrorEvent):void;
+
+  native private function SecurityError_Handler(a:flash.events.SecurityErrorEvent):void;
+  native private function Select_Many_Handler(a:flash.events.Event):void;
+  native private function Select_One_Handler(a:flash.events.Event):void;
+  native private function Select_Handler(a:Array):void;
+  native private function SelectFile():void;
+
+  native private function SelectFiles():void;
+  native private function StopUpload():void;
+  native private function CancelUpload(a:String,a2:Boolean = true):void;
+  native private function RequeueUpload(a:*):Boolean;
+  native private function GetStats():Object;
+
+  native private function SetStats(a:Object):void;
+  native private function GetFile(a:String):Object;
+  native private function GetFileByIndex(a:Number):Object;
+  native private function AddFileParam(a:String,a2:String,a3:String):Boolean;
+  native private function RemoveFileParam(a:String,a2:String):Boolean;
+
+  native private function SetUploadURL(a:String):void;
+  native private function SetPostParams(a:Object):void;
+  native private function SetFileTypes(a:String,a2:String):void;
+  native private function SetFileSizeLimit(a:String):void;
+  native private function SetFileUploadLimit(a:Number):void;
+
+  native private function SetFileQueueLimit(a:Number):void;
+  native private function SetFilePostName(a:String):void;
+  native private function SetUseQueryString(a:Boolean):void;
+  native private function SetRequeueOnError(a:Boolean):void;
+  native private function SetHTTPSuccess(a:*):void;
+
+  native private function SetAssumeSuccessTimeout(a:Number):void;
+  native private function SetDebugEnabled(a:Boolean):void;
+  native private function SetButtonImageURL(a:String):void;
+  native private function ButtonClickHandler(a:flash.events.MouseEvent):void;
+  native private function UpdateButtonState():void;
+
+  native private function SetButtonDimensions(a:Number = -1,a2:Number = -1):void;
+  native private function SetButtonText(a:String):void;
+  native private function SetButtonTextStyle(a:String):void;
+  native private function SetButtonTextPadding(a:Number,a2:Number):void;
+  native private function SetButtonDisabled(a:Boolean):void;
+
+  native private function SetButtonAction(a:Number):void;
+  native private function SetButtonCursor(a:Number):void;
+  native private function StartUpload(a:String = ""):void;
+  native private function ReturnUploadStart(a:Boolean):void;
+  native private function UploadComplete(a:Boolean):void;
+
+  native private function CheckFileSize(a:FileItem):Number;
+  native private function CheckFileType(a:FileItem):Boolean;
+  native private function BuildRequest():flash.net.URLRequest;
+  native private function Debug(a:String):void;
+  native private function PrintDebugInfo():void;
+
+  native private function FindIndexInFileQueue(a:String):Number;
+  native private function FindFileInFileIndex(a:String):FileItem;
+  native private function LoadFileExensions(a:String):void;
+  native private function loadPostParams(a:String):void;
+  native private function removeFileReferenceEventListeners(a:FileItem):void;
+
+  native public function htmlEscape(a:String):String;
+  static native public final function main():void;
+}
+
+public class ExternalCall extends Object
+{
+  native public function ExternalCall():*;
+  static native public final function Simple(a:String):void;
+  static native public final function FileQueued(a:String,a2:Object):void;
+
+  static native public final function FileQueueError(a:String,a2:Number,a3:Object,a4:String):void;
+  static native public final function FileDialogComplete(a:String,a2:Number,a3:Number,a4:Number):void;
+  static native public final function UploadStart(a:String,a2:Object):void;
+  static native public final function UploadProgress(a:String,a2:Object,a3:uint,a4:uint):void;
+  static native public final function UploadSuccess(a:String,a2:Object,a3:String,a4:Boolean):void;
+
+  static native public final function UploadError(a:String,a2:Number,a3:Object,a4:String):void;
+  static native public final function UploadComplete(a:String,a2:Object):void;
+  static native public final function Debug(a:String,a2:String):void;
+  static native public final function Bool(a:String):Boolean;
+  static native private final function EscapeMessage(a:*):*;
+
+  static native private final function EscapeString(a:String):String;
+  static native private final function EscapeArray(a:Array):Array;
+  static native private final function EscapeObject(a:Object):Object;
+}
+
+public class FileItem extends Object
+{
+  native public function FileItem(a:flash.net.FileReference,a2:String,a3:Number):*;
+  native private var postObject:Object;
+
+  native public var file_reference:flash.net.FileReference;
+  native public var id:String;
+  native public var index:Number = -1;
+  native public var file_status:int = 0;
+  native private var js_object:Object;
+
+  native public function AddParam(a:String,a2:String):void;
+  native public function RemoveParam(a:String):void;
+  native public function GetPostObject(a:Boolean = false):Object;
+  native public function ToJavaScriptObject():Object;
+  native public function toString():String;
+
+  static native private var file_id_sequence:Number = 0;
+  static native public var FILE_STATUS_QUEUED:int = -1;
+  static native public var FILE_STATUS_IN_PROGRESS:int = -2;
+  static native public var FILE_STATUS_ERROR:int = -3;
+  static native public var FILE_STATUS_SUCCESS:int = -4;
+
+  static native public var FILE_STATUS_CANCELLED:int = -5;
+  static native public var FILE_STATUS_NEW:int = -6;
+  static native public final function EscapeParamName(a:String):String;
+  static native public final function EscapeCharacter():String;
+}

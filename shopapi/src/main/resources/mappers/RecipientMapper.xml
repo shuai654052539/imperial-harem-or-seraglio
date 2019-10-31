@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC  
+    "-//mybatis.org//DTD Mapper 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+   
+<mapper namespace="com.fh.shop.api.order.mapper.RecipientMapper">
+   <select id="getList" parameterType="long" resultType="com.fh.shop.api.order.po.Recipient">
+      select tr.id,recipientName,memberid,concat(t1.name,t2.name,t3.name) specificAddress,REPLACE(recipientPhone,SUBSTR(recipientPhone,4,4),'****') recipientPhone,detailedAddress from t_recipient tr
+      left JOIN t_area t1 on tr.areaid1=t1.id
+      left JOIN t_area t2 on tr.areaid2=t2.id
+      left JOIN t_area t3 on tr.areaid3=t3.id
+      where memberid=#{id}
+   </select>
+<!--    <select id="getResourcePoList" resultType="com.fh.shop.admin.po.resource.ResourcePo">
+        select id,menuName,fatherId,type,resourceUrl from t_resource
+    </select>
+    <insert id="addTree" parameterType="com.fh.shop.admin.po.resource.ResourcePo">
+        <selectKey  keyProperty="id" resultType="long" order="AFTER" >
+            select last_insert_id()
+        </selectKey>
+        insert into t_resource (menuName,fatherId,type,resourceUrl) values (#{menuName},#{fatherId},#{type},#{resourceUrl})
+    </insert>
+    <update id="updateTree" parameterType="com.fh.shop.admin.po.resource.ResourcePo">
+        update t_resource set menuName=#{menuName},type=#{type},resourceUrl=#{resourceUrl} where id=#{id}
+    </update>
+    <delete id="deleResource" parameterType="string">
+        delete from t_resource where  FIND_IN_SET(id,#{id})
+    </delete>
+    <delete id="deleRoleResource" parameterType="string">
+        delete from t_role_resource where FIND_IN_SET(resourceid,#{str})
+    </delete>-->
+</mapper>

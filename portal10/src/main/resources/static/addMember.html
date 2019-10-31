@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link href="/commons/jq/bootstrap3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-info" style="text-align: center">
+        <div class="panel-heading">
+          注册会员
+        </div>
+        <div class="panel-body">
+          <form class="form-horizontal" id="conditionForm">
+            <div class="form-group">
+              <label class="col-md-2 control-label">用户名</label>
+              <div class="col-md-4">
+                <input type="text" class="form-control" id="userName" onblur="testblur(this)" placeholder="请输入用户名...">
+              </div>
+
+
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label">密码</label>
+              <div class="col-md-4">
+                <input type="password" class="form-control" id="passWord" placeholder="请输入密码...">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label">确认密码</label>
+              <div class="col-md-4">
+                <input type="password" class="form-control" id="verifyPWD" placeholder="请再次输入...">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label">真实姓名</label>
+              <div class="col-md-4">
+                <input type="text" class="form-control" id="realName" placeholder="请输入姓名...">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label">手机号</label>
+              <div class="col-md-4">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="phone" onchange="gaibian()">
+                  <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="button" id="getCode"
+                                            onclick="startCode(this)">发送验证码</button>
+                                    </span>
+                </div>
+              </div>
+
+            </div>
+            <div class="form-group">
+              <label class="col-md-2 control-label">验证码</label>
+              <div class="col-md-4">
+                <input type="text" class="form-control" id="verify" placeholder="请输入验证码...">
+              </div>
+            </div>
+            <div class="form-group" id="areaDiv">
+              <label class="col-md-2 control-label">地区</label>
+
+            </div>
+            <input type="hidden" name="areaid1"/>
+            <input type="hidden" name="areaid2"/>
+            <input type="hidden" name="areaid3"/>
+          </form>
+          <div style="text-align: center">
+            <button type="button" class="btn btn-primary" onclick="insertMember()" id="submit"><span
+                class="glyphicon glyphicon-search"></span>注册会员
+            </button>
+            <button type="reset" class="btn btn-info"><span class="glyphicon glyphicon-refresh"></span>重置</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+<script type="text/javascript" src="/js/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="/commons/jq/bootstrap3.3.7/js/bootstrap.min.js"></script>
+<script>
+  $(function() {
+    initTypeWhereDiV(0);
+  });
+
+  function testblur(obj) {
+    var str = '×长度不够';
+    var afterHtml = '<div class="col-md-2" style="color: red">' + str + '</div>';
+    if (obj.value.length < 6) {
+      $(obj).parent().nextAll().remove();
+      $(obj).parent().after(afterHtml);
+      $('#submit').attr('disabled', true);
+      return;
+    }
+    $.ajax({
+      url: 'http://localhost:8083/areas.jhtml',
+      data: {},
+      success: function(result) {
+        if (result.code == 200) {
+          str = '可以被注册';
+          $(obj).parent().nextAll().remove();
+          afterHtml = '<div class="col-md-2" style="color: blue">' + str + '</div>';
+          $('#submit').attr('disabled', false);
+        } else {
+          str = '该账号已被使用';
+          $(obj).parent().nextAll().remove();
+          afterHtml = '<div class="col-md-2" style="color: red">' + str + '</div>';
+          $('#submit').attr('disabled', true);
+        }
+        $(obj).parent().after(afterHtml);
+      }
+    });
+  }
+
+  jQuery(function($) {
+    txtValue = $('#phone').val();
+    ////////    给txtbox绑定键盘事件
+    $('#phone').bind('keydown', function() {
+      var currentValue = $(this).val();
+      if (currentValue != txtValue) {
+        TxtChange();
+        txtValue = currentValue;
+      }
+    });
+  });
+
+  function TxtChange() {
+    $('#phone').parent().parent().nextAll().remove();
+  }
+
+  function insertMember() {
+    var jsonMember = {};
+    jsonMember.userName = $('#userName').val();
+    jsonMember.passWord = $('#passWord').val();
+    jsonMember.oldPassWord = $('#verifyPWD').val();
+    jsonMember.realName = $('#realName').val();
+    jsonMember.phone = $('#phone').val();
+    jsonMember.code = $('#verify').val();
+    var areaid1 = $($('select[name=\'genreSelect\']')[0]).val();
+    var areaid2 = $($('select[name=\'genreSelect\']')[1]).val();
+    var areaid3 = $($('select[name=\'genreSelect\']')[2]).val();
+    jsonMember.areaid1 = areaid1;
+    jsonMember.areaid2 = areaid2;
+    jsonMember.areaid3 = areaid3;
+    $.post({
+      url: 'http://localhost:8083/areas.jhtml',
+      data: jsonMember,
+      success: function(res) {
+        if (res.code == 200) {
+          alert('洗洗睡吧');
+        } else {
+          alert(res.msg);
+        }
+      }
+    });
+  }
+
+  var timing;
+
+  function startCode(obj) {
+    var phone = $('#phone').val();
+    $.ajax({
+      url: 'http://localhost:8083/areas/code.jhtml',
+      type: 'get',
+      data: {phone: phone},
+      success: function(res) {
+        if (res.code == 200) {
+          $(obj).attr('disabled', true);
+          timing = setInterval('timecount()', 1000);
+        } else {
+          $('#phone').parent().parent().nextAll().remove();
+          $('#phone').parent().parent().after('<div class="col-md-2" style="color: red">' + res.data + '</div>');
+        }
+      }
+    });
+    /*location.href="http://localhost:8083/areas/code.jhtml?phone="+phone;*/
+  }
+
+  var time = 60;
+
+  function timecount() {
+    var obj = $('#getCode');
+    obj.text('(' + (time--) + ')' + '秒后重新获取');
+    if (time == -1) {
+      clearInterval(timing);
+      obj.attr('disabled', false);
+      obj.text('获取验证码');
+    }
+  }
+
+  function initTypeWhereDiV(id, obj) {
+    if (obj) {
+      $(obj).parent().nextAll().remove();
+    }
+    $.ajax({
+      url: 'http://localhost:8083/areas.jhtml',
+      type: 'get',
+      data: {id: id},
+      success: function(res) {
+        if (res.code == 200) {
+          if (res.data.length == 0) {
+            return;
+          }
+          var str = '<div class="col-md-3"><select name="genreSelect" class="form-control" onchange="initTypeWhereDiV(this.value,this)">' +
+              '<option value="-1">===请选择===</option> ';
+          for (var i = 0; i < res.data.length; i++) {
+            str += '<option value="' + res.data[i].id + '">' + res.data[i].name + '</option>';
+          }
+          str += '</select><div>';
+          $('#areaDiv').append(str);
+        }
+      }
+    });
+  }
+</script>
+</html>

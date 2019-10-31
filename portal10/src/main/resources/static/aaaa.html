@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE">
+  <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7"/>
+  <title>支付页</title>
+  <link href="/commons/jq/bootstrap3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" type="text/css" href="/js/shop/css/webbase.css"/>
+  <link rel="stylesheet" type="text/css" href="/js/shop/css/pages-getOrderInfo.css"/>
+</head>
+<body>
+<div id="daoHangDiv"></div>
+<div id="msg"></div>
+<div class="step-cont">
+  <ul class="send-detail">
+    <li>
+      <div class="sendGoods" id="cartInfo">
+        <!--购物信息----------------------------->
+      </div>
+    </li>
+    <li></li>
+    <li></li>
+  </ul>
+</div>
+
+<div id="cartTemplate" class="hidden">
+  <ul class="yui3-g">
+    <li class="yui3-u-1-6">
+      <span><img src="##img##"/></span>
+    </li>
+    <li class="yui3-u-7-12">
+      <div class="desc">##itmeName##</div>
+      <div class="seven">7天无理由退货</div>
+    </li>
+    <li class="yui3-u-1-12">
+      <div class="price">￥##price##</div>
+    </li>
+    <li class="yui3-u-1-12">
+      <div class="num">X##count##</div>
+    </li>
+    <li class="yui3-u-1-12">
+      <div class="exit">有货</div>
+    </li>
+  </ul>
+</div>
+<div>
+  <table cellspacing="1" cellpadding="1" border="1px">
+    <tr>
+      <td>商品名</td>
+      <td>价格</td>
+      <td>库存量</td>
+    </tr>
+    <tr>
+      <td>呀！土豆</td>
+      <td>123.0000000000000</td>
+      <td>45</td>
+    </tr>
+  </table>
+</div>
+</body>
+<script type="text/javascript" src="/js/shop/js/plugins/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/js/shop/js/plugins/jquery.easing/jquery.easing.min.js"></script>
+<script type="text/javascript" src="/js/shop/js/plugins/sui/sui.min.js"></script>
+<script type="text/javascript" src="/js/shop/js/pages/getOrderInfo.js"></script>
+<script type="text/javascript" src="/commons/jq/bootstrap3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/jquery.cookie.js"></script>
+<script src="/commons/daohangtiao.js"></script>
+<script type="text/javascript" src="/commons/jq/bootbox/bootbox.min.js"></script>
+<script type="text/javascript" src="/commons/jq/bootbox/bootbox.locales.min.js"></script>
+
+<script>
+  $(function() {
+    initInfo();
+  });
+
+  function initInfo() {
+    var a = $.cookie('result');
+    var result = eval('(' + a + ')');
+    var data = result.data;
+    var str = '';
+    $('#msg').html(result.msg);
+    var v_cartBody = $('#cartTemplate').html();
+    for (var i = 0; i < data.length; i++) {
+      str += v_cartBody.replace('##img##', data[i].img)
+          .replace('##price##', data[i].price).replace('##count##', data[i].num)
+          .replace('##itmeName##', data[i].itmeName);
+    }
+    $('#cartInfo').html(str);
+  }
+</script>
+</html>

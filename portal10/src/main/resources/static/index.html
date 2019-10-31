@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>商城首页</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="/commons/jq/bootstrap3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" type="text/css" href="/js/shop/css/webbase.css"/>
+  <link rel="stylesheet" type="text/css" href="/js/shop/css/pages-JD-index.css"/>
+  <link rel="stylesheet" type="text/css" href="/js/shop/css/widget-jquery.autocomplete.css"/>
+  <link rel="stylesheet" type="text/css" href="/js/shop/css/widget-cartPanelView.css"/>
+</head>
+<body>
+<div id="daoHangDiv">
+</div>
+
+<div id="nav-bottom">
+  <!--顶部-->
+  <div class="nav-top">
+    <!--头部-->
+    <div class="header">
+      <div class="py-container">
+        <div class="yui3-g NavList">
+          <div class="yui3-u Left all-sort">
+            <h4>全部商品分类</h4>
+          </div>
+          <div class="yui3-u Center navArea">
+            <ul class="nav">
+              <li class="f-item">服装城</li>
+              <li class="f-item">美妆馆</li>
+              <li class="f-item">品优超市</li>
+              <li class="f-item">全球购</li>
+              <li class="f-item">闪购</li>
+              <li class="f-item">团购</li>
+              <li class="f-item">有趣</li>
+            </ul>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--列表-->
+<div class="sort">
+  <div class="py-container">
+    <div class="yui3-g SortList ">
+      <div class="yui3-u Left all-sort-list">
+        <div class="all-sort-list2" id="cateListDiv">
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-warning">
+        <div class="panel-heading">
+          <h3 class="panel-title">商品图片展示</h3>
+        </div>
+        <div class="panel-body" id="productHtml">
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">热销品牌展示</h3>
+        </div>
+        <div class="panel-body" id="brandHtml">
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="hidden" id="productDiv">
+  <div class="col-sm-6 col-md-4">
+    <div class="thumbnail">
+      <img src="http://localhost:8081##img##" alt="...">
+      <div class="caption">
+        <h3>##goodsName##</h3>
+        <p>##createDate##</p>
+        <p><a href="#" class="btn btn-primary" onclick="insert('##id##')" role="button">购买</a> <a href="#"
+                                                                                                  class="btn btn-default"
+                                                                                                  role="button">##goodsName##</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="hidden" id="brandDiv">
+  <div class="col-sm-6 col-md-4">
+    <div class="thumbnail">
+      <img src="http://localhost:8081##img##">
+      <div class="caption">
+        <h3>##goodsName##</h3>
+        <p></p>
+        <p><a href="#" onclick="insert('##id##')" class="btn btn-primary" role="button">##goodsName##</a> <a href="#"
+                                                                                                             class="btn btn-default"
+                                                                                                             role="button">##goodsName##</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<!--<div class="hidden" id="loginInfoDiv">
+    <li><a href="#">欢迎##userName##</a></li>
+    <li><a href="#" onclick="out()">退出</a></li>
+</div>-->
+<script type="text/javascript" src="/js/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="/commons/jq/bootstrap3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/jquery.cookie.js"></script>
+<script type="text/javascript" src="/commons/daohangtiao.js"></script>
+<script type="text/javascript" src="/commons/jq/bootbox/bootbox.min.js"></script>
+<script type="text/javascript" src="/commons/jq/bootbox/bootbox.locales.min.js"></script>
+</body>
+
+<script>
+  $(function() {
+    goodslist();
+    brandlist();
+    initCategoryList();
+  });
+
+  function insert(id) {
+    //没登录弹出登录框 然后将商品信息写到购物车
+    if (!loginFlag) {
+      bootbox.confirm({
+        title: '请登录用户',
+        size: 'large',
+        backdrop: false,
+        message: $(loginHtml),
+        buttons: {
+          confirm: {
+            label: 'Yes',
+            className: 'btn-success'
+          },
+          cancel: {
+            label: 'No',
+            className: 'btn-danger'
+          }
+        },
+        callback: function(result) {
+          if (result) {
+            var json = {};
+            json.userName = $('#loginUserName').val();
+            json.passWord = $('#loginPassWord').val();
+            $.post({
+              url: 'http://localhost:8083/areas/login.jhtml',
+              data: json,
+              async: false,
+              success: function(res) {
+                if (res.code == 200) {
+                  $.cookie('x_fh', res.data);
+                  addCart(id);
+                } else {
+                  alert(res.msg);
+                }
+              }
+            });
+          }
+        }
+      });
+    }
+    //登录了直接写入商品信息到购物车
+    addCart(id);
+  }
+
+  function addCart(id) {
+    $.ajax({
+      url: 'http://localhost:8083/carts.jhtml',
+      type: 'post',
+      data: {shopId: id, count: 1},
+      success: function(result) {
+        if (result.code == 200) {
+          location.href = '/cart.html';
+        }
+      }
+    });
+  }
+
+
+  function initCss() {
+    $('.all-sort-list2 > .item').hover(function() {
+      //父类分类列表容器的高度
+
+      $(this).addClass('hover');
+      $(this).children('.item-list').css('display', 'block');
+    }, function() {
+      $(this).removeClass('hover');
+      $(this).children('.item-list').css('display', 'none');
+    });
+
+    $('.item > .item-list > .close').click(function() {
+      $(this).parent().parent().removeClass('hover');
+      $(this).parent().hide();
+    });
+  }
+
+  var v_cateArr;
+  var v_html = '';
+
+  function initCategoryList() {
+    $.ajax({
+      type: 'post',
+      url: 'http://localhost:8083/type/queryTypeTree.jhtml',
+      success: function(result) {
+        if (result.code == 200) {
+          v_cateArr = result.data;
+          console.log(v_cateArr);
+          buildCate1(0);
+          console.log(v_html);
+          $('#cateListDiv').html(v_html);
+          initCss();
+        }
+      }
+    });
+  }
+
+  function buildCate1(id) {
+    var cate1Arr = getChilds(id);
+    for (var i = 0; i < cate1Arr.length; i++) {
+      v_html += '<div class="item">';
+      v_html += '<h3><a href="">' + cate1Arr[i].name + '</a></h3>';
+      v_html += '<div class="item-list clearfix">';
+      v_html += '<div class="subitem">';
+      buildCate2(cate1Arr[i].id);
+      v_html += '</div>';
+      v_html += '</div>';
+      v_html += '</div>';
+    }
+  }
+
+  function buildCate2(id) {
+    var cate2Arr = getChilds(id);
+    for (var i = 0; i < cate2Arr.length; i++) {
+      v_html += '<dl class="fore' + (i + 1) + '">';
+      v_html += '<dt><a href="">' + cate2Arr[i].name + '</a></dt>';
+      v_html += '<dd>';
+      buildCate3(cate2Arr[i].id);
+      v_html += '</dd>';
+      v_html += '</dl>';
+    }
+  }
+
+  function buildCate3(id) {
+    var cate3Arr = getChilds(id);
+    for (var i = 0; i < cate3Arr.length; i++) {
+      v_html += '<em><a href="">' + cate3Arr[i].name + '</a></em>';
+    }
+  }
+
+
+  function getChilds(id) {
+    var v_childs = [];
+    for (var i = 0; i < v_cateArr.length; i++) {
+      if (v_cateArr[i].father == id) {
+        v_childs.push(v_cateArr[i]);
+      }
+    }
+    return v_childs;
+  }
+
+  function goodslist() {
+    $.ajax({
+      url: 'http://localhost:8083/goods/lists.jhtml',
+      type: 'get',
+      success: function(result) {
+        console.log(result.data);
+        if (result.code == 200) {
+          var v_productDiv = $('#productDiv').html();
+          console.log(v_productDiv);
+
+          for (var i = 0; i < result.data.length; i++) {
+            var v_productHtml = v_productDiv.replace('##img##', result.data[i].goodsImgUrl)
+                .replace(/##goodsName##/g, result.data[i].goodsName)
+                .replace('##createDate##', result.data[i].createDate)
+                .replace('##id##', result.data[i].id);
+            $('#productHtml').append(v_productHtml);
+          }
+        }
+      }
+    });
+  }
+
+  function brandlist() {
+    $.ajax({
+      url: 'http://localhost:8083/brands/list.jhtml',
+      type: 'get',
+      success: function(result) {
+        console.log(result.data);
+        if (result.code == 200) {
+          var v_productDiv = $('#brandDiv').html();
+          console.log(v_productDiv);
+          for (var i = 0; i < result.data.length; i++) {
+            var v_productHtml = v_productDiv.replace('##img##', result.data[i].brandImgUrl).replace(/##goodsName##/g, result.data[i].brandName).replace(/##id##/g, result.data[i].id);
+            $('#brandHtml').append(v_productHtml);
+          }
+        }
+      }
+    });
+  }
+</script>
+</html>

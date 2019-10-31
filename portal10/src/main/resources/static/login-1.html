@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>飞虎管理系统</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type="text/javascript" src="/js/jquery-3.3.1.js"></script>
+  <script type="text/javascript" src="/js/jquery.cookie.js"></script>
+  <link href="/commons/jq/bootstrap3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+  <script type="text/javascript" src="/commons/jq/bootstrap3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div>
+  <div>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">用户名登录</a>
+      </li>
+      <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">免密登录</a></li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="home">
+        用户名：<input type="text" id="">
+        密码：<input type="password">
+        <input type="button" onclick="login()" value="登录">
+      </div>
+      <div role="tabpanel" class="tab-pane" id="profile">
+        手机号码：<input type="text" id="phone">
+        验证码：<input type="text" id="yanzheng">
+        <button class="btn btn-primary" type="button" id="getCode" onclick="startCode(this)">发送验证码</button>
+        <input type="button" onclick="login2()" value="登录">
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+
+  function login() {
+    var userName = $('#name').val();
+    var passWord = $('#password').val();
+    /*var code=$("#code").val();*/
+    if ($.trim(userName) != '' && $.trim(userName) != '') {
+      $.post({
+        url: 'http://localhost:8083/areas/login.jhtml',
+
+        data: {userName: userName, passWord: passWord},
+        success: function(res) {
+          if (res.code == 200) {
+            $.cookie('x_fh', res.data);
+            location.href = '/index.html';
+          } else {
+            alert(res.msg);
+          }
+        }
+      });
+    }
+  }
+
+  function login2() {
+    var json = {};
+    json.phone = $('#phone').val();
+    json.yanzhengma = $('#yanzheng').val();
+    $.post({
+      url: 'http://localhost:8083/areas/logins.jhtml',
+      data: json,
+      success: function(result) {
+        if (result.code == 200) {
+          $.cookie('x_fh', result.data);
+          location.href = '/index.html';
+        } else {
+          alert(result.msg);
+        }
+      }
+    });
+  }
+
+  function startCode(obj) {
+    var phone = $('#phone').val();
+    $.ajax({
+      url: 'http://localhost:8083/areas/codes.jhtml',
+      type: 'get',
+      data: {phone: phone},
+      success: function(res) {
+        if (res.code == 200) {
+          $(obj).attr('disabled', true);
+          timing = setInterval('timecount()', 1000);
+        } else {
+          /* $('#phone').parent().parent().nextAll().remove();
+           $('#phone').parent().parent().after('<div class="col-md-2" style="color: red">'+res.data+'</div>');*/
+          alert(res.data);
+        }
+      }
+    });
+    /*location.href="http://localhost:8083/areas/code.jhtml?phone="+phone;*/
+  }
+
+  function timecount() {
+    var obj = $('#getCode');
+    obj.text('(' + (time--) + ')' + '秒后重新获取');
+    if (time == -1) {
+      clearInterval(timing);
+      obj.attr('disabled', false);
+      obj.text('获取验证码');
+    }
+  }
+</script>
+</body>
+</html>
